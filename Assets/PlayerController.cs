@@ -17,8 +17,8 @@ public class PlayerController : MonoBehaviour
     public Vector2 moveInput;
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
-    public float dashForce = 10f;
-    public float dashTimer = 0.5f;
+    public float dashForce = 20f;
+    public float dashTimer = 0.3f;
     public float runMultiplier = 1.6f;
     public float groundCheckRadius = 0.2f;
 
@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
         controls.Player.Run.performed += ctx => isRunning = true;
         controls.Player.Run.canceled += ctx => isRunning = false;
 
-        controls.Player.Dash.performed += ctx => Dash();
+        controls.Player.Dash.performed += ctx => isDashing = true;
     }
 
     void OnEnable() => controls.Enable();
@@ -127,6 +127,8 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+
+
     }
 
     void FixedUpdate()
@@ -136,7 +138,7 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
 
-
+        Dash();
 
     }
 
@@ -164,19 +166,23 @@ public class PlayerController : MonoBehaviour
 
     void Dash()
     {
-        dashTimer -= Time.deltaTime;
-        if (dashTimer > 0)
+        if (isDashing)
         {
-            isDashing = true;
-            rb.linearVelocityX = isLookingRight ? dashForce : dashForce * -1;
-            Dash();
-        } else if (dashTimer < 0)
-        {
-            isDashing = false;
-            rb.linearVelocityX = 0;
-            dashTimer = 0.5f;
-            return;
+            dashTimer -= Time.deltaTime;
+            if (dashTimer > 0)
+            {
+                rb.linearVelocityX = isLookingRight ? dashForce : dashForce * -1;
+                animator.SetBool("isDashing", true);
+            }
+            else if (dashTimer < 0)
+            {
+                isDashing = false;
+                animator.SetBool("isDashing", false);
+                rb.linearVelocityX = 0;
+                dashTimer = 0.3f;
+            }
         }
+        
 
     }
 }
