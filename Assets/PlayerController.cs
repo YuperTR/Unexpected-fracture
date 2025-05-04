@@ -101,7 +101,7 @@ public class PlayerController : MonoBehaviour
         if (moveInput.x > 0)
         {
             isLookingRight = true;
-            transform.localScale = new Vector3(5, 5, 1);
+            transform.localScale = isCrouching ? new Vector3(5, 5, 1) : new Vector3(5, 5, 1); 
         }
         else if (moveInput.x < 0)
         {
@@ -127,7 +127,10 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-
+        if(isCrouching)
+        {
+            animator.SetBool("isCrouching", true);
+        }
 
     }
 
@@ -184,6 +187,11 @@ public class PlayerController : MonoBehaviour
         }
         
 
+    }
+
+    void Crouch()
+    {
+        animator.SetBool("isCrouching", true);
     }
 }
 
