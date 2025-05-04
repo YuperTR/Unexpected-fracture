@@ -17,6 +17,9 @@ public class PlayerController : MonoBehaviour
     public Vector2 moveInput;
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
+    public float dashForce = 10f;
+    public float dashTimer = 0.5f;
+    public float runMultiplier = 1.6f;
     public float groundCheckRadius = 0.2f;
 
     //Abilities
@@ -28,9 +31,14 @@ public class PlayerController : MonoBehaviour
     //States
     [Header("States")]
     public bool isJumping;
+    public bool isFalling;
     public bool isRunning;
+    public bool isClimbing;
+    public bool isHanging;
     public bool isCrouching;
     public bool isDashing;
+
+    [Header("Mechanical States")]
     public bool isLookingRight;
     public bool isGrounded;
     public bool isTeleported;
@@ -47,7 +55,7 @@ public class PlayerController : MonoBehaviour
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
 
-        controls.Player.Jump.performed += ctx => isJumping = true;
+        controls.Player.Jump.performed += ctx => Jump();
         controls.Player.Teleport.performed += ctx => Teleport();
         controls.Player.Crouch.performed += ctx => isCrouching = true;
         controls.Player.Crouch.canceled += ctx => isCrouching = false;
@@ -55,7 +63,7 @@ public class PlayerController : MonoBehaviour
         controls.Player.Run.performed += ctx => isRunning = true;
         controls.Player.Run.canceled += ctx => isRunning = false;
 
-        controls.Player.Dash.performed += ctx => isDashing = true;
+        controls.Player.Dash.performed += ctx => Dash();
     }
 
     void OnEnable() => controls.Enable();
@@ -68,11 +76,22 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+
         //Yürüme Mekaniði
-        rb.linearVelocityX = moveInput.x * (isRunning ? 7f : 5f);
+        rb.linearVelocityX = moveInput.x * (isRunning ? moveSpeed  * runMultiplier : moveSpeed);
         animator.SetFloat("Speed", moveInput.sqrMagnitude); // Idle-Walk geçiþi için
 
 
+        //Yürüme ve Koþma arasýnda animasyon hýzý ayarlayýcý
+        if(isRunning)
+        {
+            animator.speed = 1 * runMultiplier;
+        } else
+        {
+            animator.speed = 1;
+        }
+
+        //Karakterin yerde olup olmadýðýný kontrol eden kontrolcü
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
@@ -82,26 +101,35 @@ public class PlayerController : MonoBehaviour
         if (moveInput.x > 0)
         {
             isLookingRight = true;
-            transform.localScale = new Vector3(4, 4, 1);
+            transform.localScale = new Vector3(5, 5, 1);
         }
         else if (moveInput.x < 0) {
             isLookingRight = false;
-            transform.localScale = new Vector3(-4, 4, 1);
+            transform.localScale = new Vector3(-5, 5, 1);
         }
 
 
-
-        //Zýplama Mekaniði
+        //Zýplama Animasyon Mekaniði
         if (isJumping)
         {
-            rb.linearVelocityY = jumpForce;
-            isJumping = false;
+            
+            if(rb.linearVelocityY > 0)
+            {
+                animator.SetBool("isJumping", true);
+            } else
+            {
+                animator.SetBool("isJumping", false);
+                animator.SetBool("isFalling", true);
+                isFalling = true;
+                isJumping = false;
+            }
+            
+            
         }
 
         if (isDashing)
         {
-            // Dash logic
-            isDashing = false;
+            
         }
     }
 
@@ -117,6 +145,28 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, (transform.position.y - 16f), transform.position.z);
             isTeleported = false;
+        }
+
+    }
+
+    void Jump()
+    {
+        rb.linearVelocityY = jumpForce;
+        isJumping = true;
+    }
+
+    void Dash()
+    {
+        dashTimer -= Time.deltaTime;
+        if (dashTimer > 0)
+        {
+            isDashing = true;
+            rb.linearVelocityX = isLookingRight ? dashForce : dashForce * -1;
+        } else if (dashTimer < 0)
+        {
+            isDashing = false;
+            rb.linearVelocityX = 0;
+            dashTimer = 0.5f;
         }
 
     }
