@@ -77,6 +77,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
 
+        if (isGrounded)
+        {
+            isFalling = false;
+            animator.SetBool("isFalling", false);
+        }
+
         //Yürüme Mekaniði
         rb.linearVelocityX = moveInput.x * (isRunning ? moveSpeed  * runMultiplier : moveSpeed);
         animator.SetFloat("Speed", moveInput.sqrMagnitude); // Idle-Walk geçiþi için
@@ -91,12 +97,16 @@ public class PlayerController : MonoBehaviour
             animator.speed = 1;
         }
 
-        //Karakterin yerde olup olmadýðýný kontrol eden kontrolcü
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+  
     }
 
     void FixedUpdate()
     {
+
+        //Karakterin yerde olup olmadýðýný kontrol eden kontrolcü
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+
         //Saða Sola dönme mekaniði
         if (moveInput.x > 0)
         {
@@ -123,14 +133,9 @@ public class PlayerController : MonoBehaviour
                 isFalling = true;
                 isJumping = false;
             }
-            
-            
         }
 
-        if (isDashing)
-        {
-            
-        }
+
     }
 
 
@@ -162,11 +167,13 @@ public class PlayerController : MonoBehaviour
         {
             isDashing = true;
             rb.linearVelocityX = isLookingRight ? dashForce : dashForce * -1;
+            Dash();
         } else if (dashTimer < 0)
         {
             isDashing = false;
             rb.linearVelocityX = 0;
             dashTimer = 0.5f;
+            return;
         }
 
     }
