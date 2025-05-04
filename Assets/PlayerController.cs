@@ -97,7 +97,36 @@ public class PlayerController : MonoBehaviour
             animator.speed = 1;
         }
 
-  
+        //Saða Sola dönme mekaniði
+        if (moveInput.x > 0)
+        {
+            isLookingRight = true;
+            transform.localScale = new Vector3(5, 5, 1);
+        }
+        else if (moveInput.x < 0)
+        {
+            isLookingRight = false;
+            transform.localScale = new Vector3(-5, 5, 1);
+        }
+
+
+        //Zýplama Animasyon Mekaniði
+        if (isJumping)
+        {
+
+            if (rb.linearVelocityY > 0)
+            {
+                animator.SetBool("isJumping", true);
+            }
+            else
+            {
+                animator.SetBool("isJumping", false);
+                animator.SetBool("isFalling", true);
+                isFalling = true;
+                isJumping = false;
+            }
+        }
+
     }
 
     void FixedUpdate()
@@ -107,33 +136,6 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
 
-        //Saða Sola dönme mekaniði
-        if (moveInput.x > 0)
-        {
-            isLookingRight = true;
-            transform.localScale = new Vector3(5, 5, 1);
-        }
-        else if (moveInput.x < 0) {
-            isLookingRight = false;
-            transform.localScale = new Vector3(-5, 5, 1);
-        }
-
-
-        //Zýplama Animasyon Mekaniði
-        if (isJumping)
-        {
-            
-            if(rb.linearVelocityY > 0)
-            {
-                animator.SetBool("isJumping", true);
-            } else
-            {
-                animator.SetBool("isJumping", false);
-                animator.SetBool("isFalling", true);
-                isFalling = true;
-                isJumping = false;
-            }
-        }
 
 
     }
