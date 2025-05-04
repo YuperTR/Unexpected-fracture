@@ -446,7 +446,7 @@ Transform:
   m_GameObject: {fileID: 901302442}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.912, y: -0.985, z: 0.07117589}
+  m_LocalPosition: {x: -9.533, y: -1.225, z: 0.07117589}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -803,7 +803,6 @@ MonoBehaviour:
   dashTimer: 0.2
   runMultiplier: 1.6
   groundCheckRadius: 0.2
-  canDoubleJump: 0
   canDash: 0
   canStrike: 0
   isJumping: 0

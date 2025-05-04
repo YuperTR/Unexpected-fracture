@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
 
     //Abilities
     [Header("Abilities")]
-    public bool canDoubleJump;
     public bool canDash;
     public bool canStrike;
 
@@ -163,8 +162,12 @@ public class PlayerController : MonoBehaviour
 
     void Jump()
     {
-        rb.linearVelocityY = jumpForce;
-        isJumping = true;
+        if (isGrounded)
+        {
+            rb.linearVelocityY = jumpForce;
+            isJumping = true;
+        }
+
     }
 
     void Dash()
