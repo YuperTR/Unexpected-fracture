@@ -10,6 +10,7 @@ public class EnemyShootingController : MonoBehaviour
 
     private float nextFireTime = 0f;
     private Transform playerTransform;
+    private bool isFacingRight = true; // Tracks the enemy's current facing direction
 
     void Start()
     {
@@ -35,6 +36,15 @@ public class EnemyShootingController : MonoBehaviour
             Debug.LogError("Fire Point not assigned on " + gameObject.name);
             enabled = false;
         }
+
+        // Initialize facing direction based on initial scale if needed
+        // If your enemy sprite starts facing left, set isFacingRight = false;
+        // and ensure transform.localScale.x is initially negative.
+        // We assume the default sprite faces right and scale.x is positive.
+        if (transform.localScale.x < 0)
+        {
+            isFacingRight = false;
+        }
     }
 
     void Update()
@@ -46,11 +56,15 @@ public class EnemyShootingController : MonoBehaviour
 
         if (distanceToPlayer <= detectionRange)
         {
-            // --- Aiming Logic (Optional: Simple aim towards player) ---
+            // --- Flipping Logic ---
+            CheckDirectionAndFlip(); // Call the new flipping method
+
+            // --- Aiming Logic ---
             Vector2 directionToPlayer = (playerTransform.position - firePoint.position).normalized;
             // Optional: Rotate the firePoint or enemy to face the player
             // float angle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
-            // firePoint.rotation = Quaternion.Euler(0f, 0f, angle - 90f); // Adjust angle offset if needed
+            // Adjust angle calculation based on whether enemy is flipped if rotating the whole enemy
+            // firePoint.rotation = Quaternion.Euler(0f, 0f, angle); // Simplest rotation towards target
 
             // --- Shooting Logic ---
             // Check if enough time has passed since the last shot
@@ -63,24 +77,55 @@ public class EnemyShootingController : MonoBehaviour
         }
     }
 
+    void CheckDirectionAndFlip()
+    {
+        if (playerTransform == null) return;
+
+        // Determine direction TO player horizontally
+        float horizontalDirectionToPlayer = playerTransform.position.x - transform.position.x;
+
+        // If player is to the right (positive direction) AND enemy is facing left
+        if (horizontalDirectionToPlayer > 0 && !isFacingRight)
+        {
+            Flip();
+        }
+        // If player is to the left (negative direction) AND enemy is facing right
+        else if (horizontalDirectionToPlayer < 0 && isFacingRight)
+        {
+            Flip();
+        }
+    }
+
+    void Flip()
+    {
+        // Switch the facing direction flag
+        isFacingRight = !isFacingRight;
+
+        // Multiply the x component of localScale by -1 to flip
+        Vector3 scaler = transform.localScale;
+        scaler.x *= -1;
+        transform.localScale = scaler;
+
+        // Optional: If flipping the FirePoint is needed separately
+        // If the FirePoint is a child, its local position might implicitly flip.
+        // If aiming depends on firePoint's local rotation, you might need to adjust it here too.
+    }
+
+
     void Shoot(Vector2 direction)
     {
         if (projectilePrefab == null || firePoint == null) return;
 
         // Instantiate the projectile at the firePoint's position and rotation
-        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation); // Use firePoint rotation for basic forward shooting
+        // Using firePoint.rotation might be less ideal if the enemy flips via scale.
+        // Instantiating with Quaternion.identity might be safer unless firePoint rotation is handled carefully.
+        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity); // Use Quaternion.identity for neutral rotation
 
-        // Get the Rigidbody2D component from the instantiated projectile
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
-
         if (rb != null)
         {
-            // Apply force to the projectile
-            // Use the calculated direction to shoot towards the player
+            // Apply force directly towards the calculated player direction
             rb.linearVelocity = direction * projectileSpeed;
-
-            // Alternative: Shoot straight based on firePoint's forward direction
-            // rb.velocity = firePoint.up * projectileSpeed; // Assuming 'up' is forward in your 2D setup
         }
         else
         {
