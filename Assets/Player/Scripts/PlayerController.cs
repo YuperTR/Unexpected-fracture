@@ -90,27 +90,29 @@ public class PlayerController : MonoBehaviour
         }
 
         //Yürüme ve Koþma arasýnda animasyon hýzý ayarlayýcý
-        if(isRunning && moveInput.x == 1 || moveInput.x == -1)
+        if (isRunning && moveInput.x == 1 || moveInput.x == -1)
         {
             animator.speed = 1 * runMultiplier;
 
-            if(playerStamina >= 0)
+            if (playerStamina >= 0)
             {
                 playerStamina -= Time.deltaTime;
             }
-           
-        } else
+
+        }
+        else
         {
             animator.speed = 1;
 
-            if(playerStamina <= 20)
+            if (playerStamina <= 20)
             {
                 playerStamina += Time.deltaTime;
             }
-            
+
         }
 
-        if (playerHealth > 0) {
+        if (playerHealth > 0)
+        {
 
 
             //Yürüme Mekaniði
@@ -152,7 +154,7 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        if(playerHealth <= 0)
+        if (playerHealth <= 0)
         {
             deathScreen.SetActive(true);
             animator.SetBool("isDead", true);
@@ -161,13 +163,13 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        
+
 
 
         //Karakterin yerde olup olmadýðýný kontrol eden kontrolcü
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-        
+
         Dash();
 
     }
@@ -205,7 +207,8 @@ public class PlayerController : MonoBehaviour
 
     void Jump()
     {
-        if (playerHealth > 0) {
+        if (playerHealth > 0)
+        {
             if (isGrounded)
             {
                 rb.linearVelocityY = jumpForce;
@@ -217,7 +220,8 @@ public class PlayerController : MonoBehaviour
 
     void Dash()
     {
-        if (playerHealth > 0) {
+        if (playerHealth > 0)
+        {
             if (dashCoolDown >= 0)
             {
                 dashCoolDown -= Time.deltaTime;
@@ -256,8 +260,8 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-       
-        
+
+
 
     }
 
