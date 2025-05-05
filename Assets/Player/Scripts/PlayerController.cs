@@ -54,6 +54,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+
+        DontDestroyOnLoad(gameObject);
         animator = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
 
